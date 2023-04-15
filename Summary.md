@@ -33,9 +33,33 @@ mvn -N io.takari:maven:0.7.7:wrapper -Dmaven=3.6.3 - для установки m
 
 ## Аннотация Test-Assertion
 
+Все тесты, согласно конвенции должны находиться в папке src/test
+
 Название тест-классов должно заканчиваться на Test, так maven-surefire-plugin поймёт, что их нужно отслеживать.
 
 В JUnit5 классы тестов могут быть не public (как в JUnit4), а package-private.
 
 maven-surefire-plugin раньше искал методы с постфиксом Test, теперь же достаточно поставить аннотацию @Test.
+
+TDD - Test Driven Development - сначала пишем тест, потом функционал.
+
+Название теста должно отображать функционал. Можно использовать snake-case.
+
+В пакете Assertions есть много разных aasertов: assertTrue, assertFalse, assertEquals, AssertListEquals и так далее.
+
+Но их бывает недостаточно, тогда можно подключить сторонние библиотеки Assertj, Hamcrest
+
+## Test LyfeCycle
+
+@BeforeAll -> @BeforeEach -> @Test -> @AfterEach -> @AfterAll
+
+Порядок вызова тестов не гарантирован, поэтому они должны быть независимыми.
+
+Методы @BeforeAll и @AfterAll должны быть static. Так как они выполняются только один раз для всех тестов.
+
+По умолчанию у нас есть жизненный цикл тестов, его можно задавать через @TestInstance. Для LifeCycle.PER_METHOD 
+@BeforeAll и @AfterAll должны быть static т.к. на каждый тест создаётся новый объект UserServiceTest.
+
+Для LifeCycle.PER_CLASS создаётся один объект UserServiceTest и нет необходимость делать @BeforeAll и @AfterAll static.
+
 
