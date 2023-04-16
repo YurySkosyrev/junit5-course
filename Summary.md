@@ -51,7 +51,7 @@ TDD - Test Driven Development - сначала пишем тест, потом �
 
 ## Test LyfeCycle
 
-@BeforeAll -> @BeforeEach -> @Test -> @AfterEach -> @AfterAll
+![alt text](lifecycle.png "Launcher API")
 
 Порядок вызова тестов не гарантирован, поэтому они должны быть независимыми.
 
@@ -62,4 +62,24 @@ TDD - Test Driven Development - сначала пишем тест, потом �
 
 Для LifeCycle.PER_CLASS создаётся один объект UserServiceTest и нет необходимость делать @BeforeAll и @AfterAll static.
 
+## Запуск тестов Launcher API
+
+![alt text](launcherApi.png "Launcher API")
+
+При подключении зависимости junit-jupiter-engine транзитивно предоставляется junit5-API.
+
+Так же транзитивно подключается общий API для всех тестов JUnit Engine API (junit-platform-engine).
+
+Тесты запускаются в Idea, либо в maven(urefire-plugin - goal test), либо в gradle(task - test). <br>
+Они используют JUnit Launcher (junit-platform-launcher).
+
+JUnit Launcher в свою очередь запускает JUnit Engine API для проверки тестов
+
+#TDD - Test Driven Development
+
+![alt text](tdd.png "Launcher API")
+
+В процессе разработки ПО сначала пишем тесты, а затем функционал, который покрываем этими тестами.
+
+Аннотация @Value lombok переопределяет equals() и hashcode().
 
