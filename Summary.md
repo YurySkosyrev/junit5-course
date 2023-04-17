@@ -83,3 +83,6 @@ JUnit Launcher в свою очередь запускает JUnit Engine API д
 
 Аннотация @Value lombok переопределяет equals() и hashcode().
 
+## Assertj and Hamcrest
+
+Executable - функциональный интерфейс аналогичный Runnable, но пробрасывает exception.
