@@ -1,6 +1,9 @@
 package com.dmdev.junit.service;
 
 import com.dmdev.junit.dto.User;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.collection.IsEmptyCollection;
+import org.hamcrest.collection.IsMapContaining;
 import org.junit.jupiter.api.*;
 
 import java.util.List;
@@ -8,6 +11,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.collection.IsEmptyCollection.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -32,6 +36,8 @@ public class UserServiceTest {
     void usersEmptyIfNoUsersAdded() {
         System.out.println("Test1 :" + this);
         List<User> users = userService.getAll();
+
+        MatcherAssert.assertThat(users, empty());
         assertTrue(users.isEmpty(), ()->"User List should be empty");
     }
 
@@ -60,11 +66,31 @@ public class UserServiceTest {
     }
 
     @Test
+    void throwExceptionIfUserNameOrPasswordIsNull() {
+
+        assertAll(
+                () -> {
+                    IllegalArgumentException exc = assertThrows(IllegalArgumentException.class, () -> userService.login(null, "dummy"));
+                    assertThat(exc.getMessage()).isEqualTo("username or password is null");
+                },
+                () -> assertThrows(IllegalArgumentException.class, () -> userService.login("dummy", null))
+        );
+
+//        try {
+//            userService.login(null, "dummy");
+//            fail("login should throw exception on null username");
+//        } catch (IllegalArgumentException ex) {
+//            assertTrue(true);
+//        }
+    }
+
+    @Test
     void usersConvertedToMapById(){
         userService.add(IVAN, PETR);
 
         Map<Integer, User> users = userService.getAllConvertedById();
 
+        MatcherAssert.assertThat(users, IsMapContaining.hasKey(IVAN.getId()));
 
         assertAll(
                 () -> assertThat(users).containsValues(IVAN, PETR),
@@ -86,6 +112,8 @@ public class UserServiceTest {
         userService.add(IVAN);
 
         Optional<User> maybeUser = userService.login("dummy", IVAN.getPassword());
+
+
 
         assertTrue(maybeUser.isEmpty());
     }

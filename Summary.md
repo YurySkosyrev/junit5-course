@@ -86,3 +86,14 @@ JUnit Launcher в свою очередь запускает JUnit Engine API д
 ## Assertj and Hamcrest
 
 Executable - функциональный интерфейс аналогичный Runnable, но пробрасывает exception.
+
+assertAll - проверяет все assertы, в отличии от набора, когда если один assert падает, то до других проверка не доходит.
+
+В hamcrest в assertThat передается объект и matcher<br>
+MatcherAssert.assertThat(users, IsMapContaining.hasKey(IVAN.getId()));
+
+## Testing exceptions
+
+В junit4 пробрасывание exceptions проверялось аннотацией<br>
+@org.junit.Test(excepted = IllegalArgumentException.class)
+
