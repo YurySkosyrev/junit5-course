@@ -97,3 +97,37 @@ MatcherAssert.assertThat(users, IsMapContaining.hasKey(IVAN.getId()));
 В junit4 пробрасывание exceptions проверялось аннотацией<br>
 @org.junit.Test(excepted = IllegalArgumentException.class)
 
+## Tagging and Filtering
+
+В JUnit5 появилась возможность помечать тесты тегом @Tag. Тесты можно разделять по смыслу бизнес логики, либо unit и integration.<br>
+Это полезно, когда нужно протестировать только часть системы и не ждать выполнения всех тестов.
+
+В TestLauncher есть метод filters, в него передаются условия include и exclude по префиксу.
+
+Команды для запуска Maven:<br>
+**mvn clean test -Dgroups=login**<br>
+**mvn clean test -DexcludedGroups=login**
+
+## Test Order. Nested Tests
+
+Порядок запуска тестовых методов не определен. Есть алгоритм, который запускает тестовые методы в классах в одном и том же порядке, но сам порядок не гарантирован.
+
+@TestMethodOrder(MethodOrderer.Random.class)
+
+MethodOrderer - интерфейс. Есть 5 реализаций
+
+- MethodName - запуск в алфавитном порядке названий методов
+
+- DisplayName - задаём аннотацию @DisplayName, если не задана, то совпадает с названием метода. Сортировка по DisplayName.
+
+- OrderAnnotation - все тесты помечаются аннотацией @Order(value), где нет аннотация - неопределенный порядок
+
+- Random - каждый раз случайный порядок
+
+Тестовые методы можно делить по смысловой на Nested classы с помощью конструкции
+
+```java
+
+```
+
+
