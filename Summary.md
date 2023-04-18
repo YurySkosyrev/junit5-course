@@ -140,4 +140,66 @@ MethodOrderer - интерфейс. Есть 5 реализаций
     }
 ```
 
+## Dependency Injection
 
+Начиная с JUnit5 появилась возможность DI.
+
+В JUnit5 появилась возможность создавать конструтор тестового класса. Ранее должен был быть один конструктор без параметра.
+
+DI можно использовать для всех аннотаций(этапов) жизненного цикла теста.
+
+Для обеспечения работы этого механизма есть специальный интерфейс:
+
+```java
+@API(
+    status = Status.STABLE,
+    since = "5.0"
+)
+public interface ParameterResolver extends Extension {
+    boolean supportsParameter(ParameterContext var1, ExtensionContext var2) throws ParameterResolutionException;
+    // вызывается в начале, DI Framework определяет, подходит ли данный параметр под ParametrResolver и возвращает true/false
+
+    Object resolveParameter(ParameterContext var1, ExtensionContext var2) throws ParameterResolutionException;
+    // если подходит то вызывается этот метод и возвращает объект нужного класса.
+}
+```
+
+Из ParametrContext можно получить всю информацию о параметре.
+
+Из ExtensionContext всю информацию о методе, куда производится внедрение зависимости. Это осуществляется с помощью 
+Reflection API.
+
+Для внедрения зависимостей нужно создать свою реализацию данного интерфейса и указать путь, где его искать.
+
+```java
+@ExtendWith(
+        UserServiceParamResolver.class
+)
+public class UserServiceTest { ... }
+```
+
+UserServiceParametrResolver создаётся один раз, по типу Singleton, то есть можно предусмотреть механизм кэширования возвращаемого объекта.
+
+Кэширование осуществляется с помощью инструмента extensionContext.getStore() в него передаётся NameSpace - ключ для hashmap.
+
+```java
+   @Override
+    public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
+        return parameterContext.getParameter().getType() == UserService.class;
+    }
+// Один и тот же объект UserService
+  @Override
+    public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
+         Store store = extensionContext.getStore(Namespace.create(UserService.class));
+        return store.getOrComputeIfAbsent(UserService.class, it -> new UserService());
+    }
+```
+
+```java
+    // Разные объекты UserService
+    public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
+         Store store = extensionContext.getStore(Namespace.create(UserService.class));
+        return store.getOrComputeIfAbsent(extensionContext.getTestMethod(), it -> new UserService()); 
+        // для каждого метода своё название, значит уникальный ключ и новый объект класса UserService
+    }
+```
