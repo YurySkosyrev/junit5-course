@@ -203,3 +203,57 @@ UserServiceParametrResolver создаётся один раз, по типу Si
         // для каждого метода своё название, значит уникальный ключ и новый объект класса UserService
     }
 ```
+
+## Parameterized test
+
+В начале подключаем зависимость **junit-jupiter-params**
+
+Параметризованный тест позволяет закрыть сразу несколько тестовых кейсов.
+
+Вместе с аннотацией @ParametrizedTest используется аннотация @ArgumentsSource(). Она предоставляет аргументы в тест. 
+
+Есть ряд определенных ArgumentProvider: @NullSource, @EmptySource - только для одного аргумента.
+
+```java
+
+
+  @TestMethodOrder(MethodOrderer.DisplayName.class)
+    @Nested
+    @DisplayName("test user login functionality")
+    @Tag("login")
+    class LoginTest {
+
+ @ParameterizedTest(name = "{arguments} test")
+//        @NullSource
+//        @EmptySource
+//        @NullAndEmptySource
+//        @ValueSource(strings = {
+//                "Ivan", "Petr"
+//        })
+        @MethodSource("com.dmdev.junit.service.UserServiceTest#getArgumentsForLoginUser")
+//        @CsvFileSource(resources = "/login-test-data.csv", delimiter = ',', numLinesToSkip = 1)
+//        @CsvSource({
+//                "Ivan,123",
+//                "Petr,111"
+//        })
+        void loginParametrizedTest(String username, String password, Optional<User> user) {
+            userService.add(IVAN, PETR);
+
+            Optional<User> maybeUser = userService.login(username, password);
+            assertThat(maybeUser).isEqualTo(user);
+
+        }
+    }
+
+    //Нельзя создать статический класс внутри nested-класса.
+
+    static Stream<Arguments> getArgumentsForLoginUser() {
+        return Stream.of(
+                Arguments.of("Ivan", "123", Optional.of(IVAN)),
+                Arguments.of("Petr", "111", Optional.of(PETR)),
+                Arguments.of("Ivan", "dummy", Optional.empty()),
+                Arguments.of("dummy", "123", Optional.empty())
+        );
+    }
+```
+
