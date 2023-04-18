@@ -127,7 +127,17 @@ MethodOrderer - интерфейс. Есть 5 реализаций
 Тестовые методы можно делить по смысловой на Nested classы с помощью конструкции
 
 ```java
+ @TestMethodOrder(MethodOrderer.DisplayName.class)
+    @Nested
+    @DisplayName("test user login functionality")
+    @Tag("login")
+    class LoginTest {
 
+        @Test
+        void testMethod {
+            
+        }
+    }
 ```
 
 
