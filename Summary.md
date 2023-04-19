@@ -307,7 +307,32 @@ assertTimeoutPreemptively - запуск Executable в отдельном пот
 
  Существует множество интерфейсов, наследующих Exctension, которые покрывают все 5 пунктов Extension Model. Часто программисты не пишут сами реализации этих интерфейсов, а используют готове фреймворки и подключаются библиотеки. Такие как Moskito, Spring.
 
+ ## Mockito Test Doubles
+
+ Фреймворк Mockito позволяет делать заглушки на зависимые классы.
+
+  ![alt text](doubles.png "Extension Model")
+
+ В интеграционном тесте мы проверяем не только работу одного класса, но и его взаимодействие с другими классами.
+
+ При создании Mock объекта, он наследуется от класса, который в него передаётся и переопределяет все его методы. При этом возвращаются по умолчанию дефолтные значения: false, 0, null, пустые коллекции и так далее.
+
+ ```java
+public class UserDaoMock extends UserDao{
+    @Override
+    public boolean delete(Integer userId) {
+        return false;
+    }
+}
+ ```
+
+ При этом возникает ограничение - класс UserDao не может быть final.
+
+ Таким образом приходим к двух основным способам создания mock - dynamic proxy 
+
+ Mockito.doReturn(true).when(userDao).delete(IVAN.getId()); - это stub.
+
+ Mockito.any() - dummy
+
  
-
-
 

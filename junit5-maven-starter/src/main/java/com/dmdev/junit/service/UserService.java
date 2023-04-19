@@ -1,5 +1,6 @@
 package com.dmdev.junit.service;
 
+import com.dmdev.junit.dao.UserDao;
 import com.dmdev.junit.dto.User;
 
 import java.util.*;
@@ -9,7 +10,17 @@ import static java.util.stream.Collectors.toMap;
 
 public class UserService {
 
-    private List<User> users = new ArrayList<>();
+    private final List<User> users = new ArrayList<>();
+    private final UserDao userDao;
+
+    public UserService(UserDao userDao) {
+        this.userDao = userDao;
+    }
+
+    public boolean delete(Integer userID) {
+        return userDao.delete(userID);
+    }
+
 
     public List<User> getAll() {
         return users;
