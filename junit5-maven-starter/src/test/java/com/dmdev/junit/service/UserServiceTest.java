@@ -1,7 +1,8 @@
 package com.dmdev.junit.service;
 
+import com.dmdev.junit.TestBase;
 import com.dmdev.junit.dto.User;
-import com.dmdev.junit.paramresolver.UserServiceParamResolver;
+import com.dmdev.junit.extension.*;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.collection.IsMapContaining;
 import org.junit.jupiter.api.*;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.*;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -25,9 +27,14 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.DisplayName.class)
 @ExtendWith(
-        UserServiceParamResolver.class
+        {UserServiceParamResolver.class,
+                PostProcessingExtension.class,
+                ConditionalExtension.class,
+                ThrowableExtension.class
+//                GlobalExtension.class
+                }
 )
-public class UserServiceTest {
+public class UserServiceTest extends TestBase {
 
     private static final User IVAN = User.of(1, "Ivan", "123");
     private static final User PETR = User.of(2, "Petr", "111");
@@ -49,8 +56,12 @@ public class UserServiceTest {
     }
 
     @Test
-    @Disabled
-    void usersEmptyIfNoUsersAdded(UserService userService) {
+    @Order(1)
+    @Disabled ("users will be empty if user not added")
+    void usersEmptyIfNoUsersAdded(UserService userService) throws IOException {
+        if (true) {
+            throw new RuntimeException();
+        }
         System.out.println("Test1 :" + this);
         List<User> users = userService.getAll();
 
