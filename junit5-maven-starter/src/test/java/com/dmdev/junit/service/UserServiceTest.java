@@ -9,9 +9,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.*;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,6 +49,7 @@ public class UserServiceTest {
     }
 
     @Test
+    @Disabled
     void usersEmptyIfNoUsersAdded(UserService userService) {
         System.out.println("Test1 :" + this);
         List<User> users = userService.getAll();
@@ -55,8 +58,9 @@ public class UserServiceTest {
         assertTrue(users.isEmpty(), ()->"User List should be empty");
     }
 
-    @Test
+//    @Test
     @DisplayName("users size if user added")
+    @RepeatedTest(value = 5, name = RepeatedTest.LONG_DISPLAY_NAME)
     void usersSizeIfUserAdded() {
         System.out.println("Test2 :" + this);
 
@@ -100,6 +104,7 @@ public class UserServiceTest {
     @Nested
     @DisplayName("test user login functionality")
     @Tag("login")
+    @Timeout(value = 200, unit = TimeUnit.MILLISECONDS)
     class LoginTest {
 
         @Test
@@ -148,6 +153,14 @@ public class UserServiceTest {
             Optional<User> maybeUser = userService.login("dummy", IVAN.getPassword());
 
             assertTrue(maybeUser.isEmpty());
+        }
+
+        @Test
+        void checkLoginFunctionalityPerformance() {
+            Optional<User> maybeUser = assertTimeout(Duration.ofMillis(200L), () -> {
+                Thread.sleep(100L);
+                return userService.login("dummy", IVAN.getPassword());
+            });
         }
 
         @ParameterizedTest(name = "{arguments} test")
