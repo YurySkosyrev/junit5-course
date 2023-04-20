@@ -64,12 +64,12 @@ public class UserServiceTest extends TestBase {
     void shouldDeleteExistedUser() {
         userService.add(IVAN);
         Mockito.doReturn(true).when(userDao).delete(IVAN.getId());
-        boolean deleteResult = userService.delete(IVAN.getId());
+
+        Mockito.when(userDao.delete(2)).thenReturn(true);
+        boolean deleteResult = userService.delete(2);
 
         assertThat(deleteResult).isTrue();
     }
-
-
 
     @Test
     @Order(1)
@@ -99,8 +99,6 @@ public class UserServiceTest extends TestBase {
 //        assertEquals(2, users.size());
     }
 
-
-
     @Test
     void usersConvertedToMapById(){
         userService.add(IVAN, PETR);
@@ -114,8 +112,6 @@ public class UserServiceTest extends TestBase {
                 () -> assertThat(users).containsKeys(IVAN.getId(), PETR.getId())
         );
     }
-
-
 
     @AfterEach
     void deleteDataFromDataBase(){
