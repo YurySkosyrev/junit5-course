@@ -403,3 +403,37 @@ ArgumentCapture позволяет определить с каким парам
         assertThat(argumentCaptor.getValue()).isEqualTo(1);
     }
 ```
+
+## Mockito Extension
+
+```java
+   <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>5.2.0</version>
+            <scope>test</scope>
+        </dependency>
+```
+
+Mockito Extension изменяет жизненный цикл mock-объектов.
+
+Появляется возможность использовать аннотации @Mock и @Spy
+
+Над теми объектами куда нужно внедрить моки и спаи ставится аннотация @InjectMocks
+
+Создание объекта ArgumentCaptor так же можно заменить аннотацией @Captor
+
+Mock нужно создавать в @BeforeEach методе, чтобы не использовать один mock для всех тестов, т.к.
+пришлось бы переопределять все stub для этого mock.
+
+Если всё же нужно использовать один mock, с момощью функции Mockito.reset() можно очистить все переданные в него mockи.
+
+В методе @BeforeEach можно задавать stabы поведение которых одинаково для всех тестов.
+
+Если в @BeforeEach есть stab, который нигде не используется, будет проброшено исключение. 
+Т.к. Strikness по умолчанию стоит STRICT_STUB, можно изменить его на WARN или в крайнем случае на LENIENT
+
+Изменяем в аннотации @Mock(lenient = true)
+
+
+
