@@ -10,6 +10,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.*;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import java.io.IOException;
@@ -34,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.*;
                 ConditionalExtension.class,
 //                ThrowableExtension.class
 //                GlobalExtension.class
-                }
+        }
 )
 public class UserServiceTest extends TestBase {
 
@@ -56,24 +57,36 @@ public class UserServiceTest extends TestBase {
     @BeforeEach
     void prepare() {
         System.out.println("BeforeEach :" + this);
-        this.userDao = Mockito.mock(UserDao.class);
+        this.userDao = Mockito.spy(UserDao.class);
         this.userService = new UserService(userDao);
     }
 
     @Test
     void shouldDeleteExistedUser() {
+
         userService.add(IVAN);
+
         Mockito.doReturn(true).when(userDao).delete(IVAN.getId());
 
-        Mockito.when(userDao.delete(2)).thenReturn(true);
-        boolean deleteResult = userService.delete(2);
+//        Mockito.when(userDao.delete(2))
+//                .thenReturn(true)
+//                .thenReturn(false);
+
+        boolean deleteResult = userService.delete(IVAN.getId());
+        System.out.println(userService.delete(IVAN.getId()));
+        System.out.println(userService.delete(IVAN.getId()));
 
         assertThat(deleteResult).isTrue();
+
+        ArgumentCaptor<Integer> argumentCaptor = ArgumentCaptor.forClass(Integer.class);
+        Mockito.verify(userDao, Mockito.times(3)).delete(argumentCaptor.capture());
+
+        assertThat(argumentCaptor.getValue()).isEqualTo(1);
     }
 
     @Test
     @Order(1)
-    @Disabled ("users will be empty if user not added")
+    @Disabled("users will be empty if user not added")
     void usersEmptyIfNoUsersAdded(UserService userService) throws IOException {
         if (true) {
             throw new RuntimeException();
@@ -82,10 +95,10 @@ public class UserServiceTest extends TestBase {
         List<User> users = userService.getAll();
 
         MatcherAssert.assertThat(users, empty());
-        assertTrue(users.isEmpty(), ()->"User List should be empty");
+        assertTrue(users.isEmpty(), () -> "User List should be empty");
     }
 
-//    @Test
+    //    @Test
     @DisplayName("users size if user added")
     @RepeatedTest(value = 5, name = RepeatedTest.LONG_DISPLAY_NAME)
     void usersSizeIfUserAdded() {
@@ -100,7 +113,7 @@ public class UserServiceTest extends TestBase {
     }
 
     @Test
-    void usersConvertedToMapById(){
+    void usersConvertedToMapById() {
         userService.add(IVAN, PETR);
 
         Map<Integer, User> users = userService.getAllConvertedById();
@@ -114,7 +127,7 @@ public class UserServiceTest extends TestBase {
     }
 
     @AfterEach
-    void deleteDataFromDataBase(){
+    void deleteDataFromDataBase() {
         System.out.println("AfterEach :" + this);
     }
 
@@ -161,7 +174,7 @@ public class UserServiceTest extends TestBase {
         }
 
         @Test
-            void loginFailedIfPasswordIsNotCorrect() {
+        void loginFailedIfPasswordIsNotCorrect() {
             userService.add(IVAN);
 
             Optional<User> maybeUser = userService.login(IVAN.getUsername(), "dummy");

@@ -315,10 +315,16 @@ assertTimeoutPreemptively - запуск Executable в отдельном пот
 
  В интеграционном тесте мы проверяем не только работу одного класса, но и его взаимодействие с другими классами.
 
+ Mockito.mock(UserDao.class) - создание mock-объекта.
+
  При создании Mock объекта, он наследуется от класса, который в него передаётся и переопределяет все его методы. При этом возвращаются по умолчанию дефолтные значения: false, 0, null, пустые коллекции и так далее.
 
  ```java
 public class UserDaoMock extends UserDao{
+
+    private Map<Integer, Boolean> answers = new HashMap<>();
+//    private Answer1<Integer, Boolean> answer1;
+
     @Override
     public boolean delete(Integer userId) {
         return false;
@@ -328,11 +334,72 @@ public class UserDaoMock extends UserDao{
 
  При этом возникает ограничение - класс UserDao не может быть final.
 
- Таким образом приходим к двух основным способам создания mock - dynamic proxy 
+ Поведение mock объекта задаётся stubами.
 
  Mockito.doReturn(true).when(userDao).delete(IVAN.getId()); - это stub.
 
+ Mockito.when(userDao.delete(2)).thenReturn(true) - второй вариант записи. Менее предпочтителе, так 
+ как не работает с void-методами.
+ 
+ Но второй вариант записи позволяет задать поведение при первом и последующих вызовах метода<br>
+  Mockito.when(userDao.delete(2)).thenReturn(true).thenReturn(false)
+
  Mockito.any() - dummy
 
- 
+ Для каждого Mock объекта с помощью метода when мы задаем значение в список List\<Answer<?>> answers
 
+ Answer - специальный класс, возвращающий результат нашего обучения mock-объекта
+
+## Mockito Spy
+
+Spy тот же Mock, но содежит в себе реальный объект.
+
+```java
+public class UserDaoSpy extends UserDao {
+
+    private final UserDao userDao;
+    private Map<Integer, Boolean> answers = new HashMap<>();
+
+    public UserDaoSpy(UserDao userDao) {
+        this.userDao = userDao;
+    }
+
+    @Override
+    public boolean delete(Integer userId) {
+        return answers.getOrDefault(userId, userDao.delete(userId));
+        // вызов userDao.delete должен быть lazy и не вызываться, если есть answer
+    }
+}
+```
+
+Proxy в Java можно создать двумя способами: extends, но тогда есть ограничение на final класса, либо второй способ, обходящий данное ограничение.
+
+Mockito.spy(UserDao.class) - создание Spy
+
+Mockito.when(userDao.delete(2)).thenReturn(true) - этот способ менее предпочтителен для использования spy, потому, что мы сначала вызываем метод, а потом его программируем.
+
+В случае doReturn мы сначала программируем метод, а потом его вызываем.
+
+Mockito.verify - проверяем, сколько раз вызвался метод у определенного mockа
+
+ArgumentCapture позволяет определить с каким параметром был вызван метод у mock-объекта
+
+```java
+    void shouldDeleteExistedUser() {
+        
+        userService.add(IVAN);
+        
+        Mockito.doReturn(true).when(userDao).delete(IVAN.getId());
+
+        boolean deleteResult = userService.delete(IVAN.getId());
+        System.out.println(userService.delete(IVAN.getId()));
+        System.out.println(userService.delete(IVAN.getId()));
+
+        assertThat(deleteResult).isTrue();
+
+        ArgumentCaptor<Integer> argumentCaptor = ArgumentCaptor.forClass(Integer.class);
+        Mockito.verify(userDao, Mockito.times(3)).delete(argumentCaptor.capture());
+
+        assertThat(argumentCaptor.getValue()).isEqualTo(1);
+    }
+```
