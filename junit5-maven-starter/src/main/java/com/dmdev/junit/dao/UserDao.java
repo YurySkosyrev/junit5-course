@@ -5,6 +5,9 @@ import lombok.SneakyThrows;
 import java.sql.Connection;
 import java.sql.DriverManager;
 
+/**
+ * Класс-заглушка моделирующий работу Dao-слоя.
+ */
 public class UserDao {
 
     @SneakyThrows

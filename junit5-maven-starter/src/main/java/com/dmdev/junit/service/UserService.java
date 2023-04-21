@@ -3,10 +3,20 @@ package com.dmdev.junit.service;
 import com.dmdev.junit.dao.UserDao;
 import com.dmdev.junit.dto.User;
 
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
+
+/**
+ * Класс бизнес-логики работы с БД.
+ */
 
 public class UserService {
 
@@ -21,7 +31,6 @@ public class UserService {
         return userDao.delete(userID);
     }
 
-
     public List<User> getAll() {
         return users;
     }
@@ -31,7 +40,7 @@ public class UserService {
     }
 
     public Optional<User> login(String username, String password) {
-        if(username == null || password == null) {
+        if (username == null || password == null) {
             throw new IllegalArgumentException("username or password is null");
         }
         return users.stream()
